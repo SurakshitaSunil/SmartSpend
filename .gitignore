@@ -95,15 +95,6 @@ tempCodeRunnerFile.py
 # Streamlit
 .streamlit/secrets.toml
 
-# Uploads (user files — don't commit these)
-uploads/
-
-# Large dataset (249k rows — too big for GitHub)
-master_dataset.csv
-
-# Claude Code local config
-.claude/
-
 # OS
 .DS_Store
 Thumbs.db
