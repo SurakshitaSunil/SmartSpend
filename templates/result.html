@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SmartSpend — Results</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0F1117;color:#e8e4d8}
+  a{text-decoration:none}
+
+  .topbar{
+    background:#1a1a2e;border-bottom:1px solid #222;
+    padding:14px 24px;display:flex;align-items:center;
+    justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  .logo{font-size:18px;font-weight:700;color:#4ecdc4}
+  .logo span{color:#fff}
+  .data-source{font-size:11px;color:#666;margin-top:2px}
+  .back-btn{
+    font-size:12px;padding:7px 16px;border-radius:8px;
+    background:#333;color:#aaa;border:1px solid #444;cursor:pointer;
+    font-weight:500;
+  }
+  .back-btn:hover{background:#444;color:#fff}
+
+  .main{max-width:1100px;margin:0 auto;padding:24px 20px}
+
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .mc{
+    background:#1a1a2e;border:1px solid #222;border-radius:12px;
+    padding:16px 18px;
+  }
+  .mc-label{font-size:11px;color:#555;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+  .mc-val{font-size:22px;font-weight:600;color:#fff}
+  .mc-sub{font-size:11px;color:#444;margin-top:3px}
+  .mc-val.red{color:#f44336}
+  .mc-val.green{color:#4caf50}
+  .mc-val.orange{color:#ff9800}
+  .mc-val.teal{color:#4ecdc4}
+
+  .section{background:#1a1a2e;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:20px}
+  .sec-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:16px;
+    display:flex;align-items:center;gap:8px}
+  .sec-title .badge{
+    font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+    padding:2px 8px;border-radius:10px;
+  }
+  .badge-if{background:rgba(244,67,54,0.15);color:#ef9a9a}
+  .badge-lr{background:rgba(255,152,0,0.15);color:#ffcc80}
+  .badge-km{background:rgba(76,175,80,0.15);color:#a5d6a7}
+  .badge-rule{background:rgba(78,205,196,0.15);color:#4ecdc4}
+
+  .chart-img{width:100%;border-radius:8px;display:block}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+
+  /* Sector bar table */
+  .sector-list{display:grid;gap:8px}
+  .sector-row{display:flex;align-items:center;gap:10px}
+  .sector-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .sector-name{font-size:13px;color:#ccc;min-width:110px}
+  .sector-bar-wrap{flex:1;height:8px;background:#222;border-radius:4px;overflow:hidden}
+  .sector-bar{height:100%;border-radius:4px}
+  .sector-amt{font-size:12px;font-weight:500;color:#fff;min-width:80px;text-align:right}
+
+  /* Anomaly table */
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;padding:8px 10px;color:#555;border-bottom:1px solid #222;
+    font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+  td{padding:9px 10px;color:#ccc;border-bottom:1px solid #1a1a2e}
+  tr:hover td{background:#111}
+  .badge-anomaly{
+    font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;
+    background:rgba(244,67,54,0.15);color:#ef9a9a;
+  }
+  .z-high{color:#f44336;font-weight:600}
+  .z-med{color:#ff9800;font-weight:600}
+
+  /* Sector forecast */
+  .forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .fc-card{background:#111;border:1px solid #222;border-radius:10px;padding:12px 14px;text-align:center}
+  .fc-sector{font-size:11px;color:#555;margin-bottom:4px}
+  .fc-amt{font-size:16px;font-weight:600;color:#fff}
+
+  .footer{text-align:center;padding:30px;color:#333;font-size:12px;border-top:1px solid #1a1a2e;margin-top:20px}
+
+  @media(max-width:600px){
+    .metrics{grid-template-columns:1fr 1fr}
+    .two-col{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="logo">Smart<span>Spend</span> — Results</div>
+    <div class="data-source">📂 {{ data_source }}</div>
+  </div>
+  <a href="/"><button class="back-btn">← Upload New File</button></a>
+</div>
+
+<div class="main">
+
+  <!-- Metric cards -->
+  <div class="metrics">
+    <div class="mc">
+      <div class="mc-label">Total Spending</div>
+      <div class="mc-val teal">{{ total_spend }}</div>
+      <div class="mc-sub">{{ total_txns }} transactions</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">Anomalies Flagged</div>
+      <div class="mc-val red">{{ anomaly_count }}</div>
+      <div class="mc-sub">Isolation Forest detected</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">Next Month Forecast</div>
+      <div class="mc-val orange">{{ forecast }}</div>
+      <div class="mc-sub">MAE ± {{ mae }}</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">Top Spending Sector</div>
+      <div class="mc-val green">{{ top_sector }}</div>
+      <div class="mc-sub">Highest category spend</div>
+    </div>
+  </div>
+
+  <!-- Daily sector bar chart -->
+  <div class="section">
+    <div class="sec-title">
+      📊 Daily Spending by Sector
+      <span class="badge badge-rule">Rule-based tagger</span>
+    </div>
+    <img class="chart-img" src="data:image/png;base64,{{ chart_sector }}" alt="Daily sector chart"/>
+  </div>
+
+  <div class="two-col">
+
+    <!-- Sector totals -->
+    <div class="section">
+      <div class="sec-title">
+        🗂 Sector Breakdown
+        <span class="badge badge-rule">Amount + Date rules</span>
+      </div>
+      {% set max_amt = (sector_data[0].amount|replace('₹','')|replace(',','')|float) if sector_data else 1 %}
+      <div class="sector-list">
+        {% for s in sector_data %}
+        {% set this_amt = s.amount|replace('₹','')|replace(',','')|float %}
+        <div class="sector-row">
+          <div class="sector-dot" style="background:{{ s.color }}"></div>
+          <div class="sector-name">{{ s.sector }}</div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar" style="width:{{ ((this_amt / max_amt) * 100)|round(1) }}%;background:{{ s.color }}"></div>
+          </div>
+          <div class="sector-amt">{{ s.amount }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sector forecast -->
+    <div class="section">
+      <div class="sec-title">
+        📈 Next Month Forecast by Sector
+        <span class="badge badge-lr">Linear Regression</span>
+      </div>
+      <div class="forecast-grid">
+        {% for s in sec_forecast %}
+        <div class="fc-card">
+          <div class="fc-sector">{{ s.sector }}</div>
+          <div class="fc-amt">{{ s.forecast }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Anomaly timeline -->
+  <div class="section">
+    <div class="sec-title">
+      🔴 Anomaly Detection Timeline
+      <span class="badge badge-if">Isolation Forest</span>
+    </div>
+    <img class="chart-img" src="data:image/png;base64,{{ chart_anomaly }}" alt="Anomaly chart"/>
+  </div>
+
+  <!-- Anomaly table -->
+  {% if anomaly_rows %}
+  <div class="section">
+    <div class="sec-title">
+      ⚠️ Flagged Anomalous Transactions
+      <span class="badge badge-if">Isolation Forest</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Sector</th>
+          <th>Sector Z-Score</th>
+          <th>Anomaly Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in anomaly_rows %}
+        <tr>
+          <td>{{ row.date }}</td>
+          <td>{{ row.amount }}</td>
+          <td>{{ row.sector }}</td>
+          <td class="{{ 'z-high' if row.z_score|float > 2.5 else 'z-med' }}">{{ row.z_score }}</td>
+          <td>{{ row.score }}</td>
+          <td><span class="badge-anomaly">Flagged</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Budget forecast chart -->
+  {% if chart_forecast %}
+  <div class="section">
+    <div class="sec-title">
+      📉 Monthly Budget Forecast
+      <span class="badge badge-lr">Linear Regression</span>
+    </div>
+    <img class="chart-img" src="data:image/png;base64,{{ chart_forecast }}" alt="Forecast chart"/>
+  </div>
+  {% endif %}
+
+  <!-- K-Means cluster chart -->
+  <div class="section">
+    <div class="sec-title">
+      🎯 Daily Spending Clusters
+      <span class="badge badge-km">K-Means</span>
+    </div>
+    <img class="chart-img" src="data:image/png;base64,{{ chart_cluster }}" alt="Cluster chart"/>
+  </div>
+
+</div>
+
+<div class="footer">
+  SmartSpend — AI Personal Finance Tracker &nbsp;|&nbsp; SDG 8 & SDG 9 &nbsp;|&nbsp; AIML Project 2024–25
+</div>
+
+</body>
+</html>

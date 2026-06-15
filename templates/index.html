@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SmartSpend — AI Personal Finance Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#0F1117;color:#e8e4d8;min-height:100vh}
+  .hero{
+    background:linear-gradient(135deg,#0F1117 0%,#1a1a2e 50%,#0F1117 100%);
+    border-bottom:1px solid #222;
+    padding:48px 24px 40px;text-align:center;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+    padding:4px 14px;border-radius:20px;
+    background:rgba(78,205,196,0.1);color:#4ecdc4;
+    border:1px solid rgba(78,205,196,0.25);margin-bottom:20px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:#4ecdc4}
+  h1{font-size:clamp(24px,5vw,42px);font-weight:700;color:#ffffff;margin-bottom:10px}
+  h1 span{color:#4ecdc4}
+  .sub{font-size:15px;color:#888;max-width:520px;margin:0 auto 36px;line-height:1.6}
+  .sdg-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+  .sdg-pill{
+    font-size:11px;font-weight:500;padding:5px 14px;border-radius:20px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .sdg8{background:rgba(255,193,7,0.1);color:#ffc107;border:1px solid rgba(255,193,7,0.25)}
+  .sdg9{background:rgba(76,175,80,0.1);color:#4caf50;border:1px solid rgba(76,175,80,0.25)}
+
+  .upload-card{
+    background:#1a1a2e;border:2px dashed #333;border-radius:16px;
+    padding:48px 32px;max-width:560px;margin:0 auto;
+    transition:border-color .2s;
+  }
+  .upload-card:hover{border-color:#4ecdc4}
+  .upload-icon{font-size:48px;margin-bottom:16px}
+  .upload-title{font-size:18px;font-weight:600;color:#fff;margin-bottom:8px}
+  .upload-sub{font-size:13px;color:#666;margin-bottom:24px;line-height:1.5}
+
+  input[type=file]{
+    display:block;width:100%;padding:10px;
+    border:1px solid #333;border-radius:8px;
+    background:#111;color:#aaa;font-size:13px;
+    margin-bottom:20px;cursor:pointer;
+  }
+  input[type=file]::file-selector-button{
+    background:#333;color:#fff;border:none;
+    padding:6px 14px;border-radius:6px;cursor:pointer;
+    font-size:12px;margin-right:10px;
+  }
+  .btn{
+    width:100%;padding:14px;border:none;border-radius:10px;
+    background:linear-gradient(135deg,#4ecdc4,#44a08d);
+    color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+    transition:opacity .2s;
+  }
+  .btn:hover{opacity:0.9}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-secondary{
+    background:transparent;border:1px solid #333;color:#aaa;
+    margin-top:10px;
+  }
+  .btn-secondary:hover{background:#222;color:#fff;opacity:1}
+  .divider{
+    display:flex;align-items:center;gap:10px;
+    margin:18px 0 14px;color:#444;font-size:11px;
+    text-transform:uppercase;letter-spacing:.1em;
+  }
+  .divider::before,.divider::after{
+    content:'';flex:1;height:1px;background:#222;
+  }
+
+  .error{
+    background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.3);
+    color:#ef9a9a;border-radius:8px;padding:12px 16px;
+    max-width:560px;margin:16px auto 0;font-size:13px;text-align:center;
+  }
+
+  .features{
+    max-width:800px;margin:48px auto;padding:0 24px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;
+  }
+  .feat{
+    background:#1a1a2e;border:1px solid #222;border-radius:12px;
+    padding:18px;text-align:center;
+  }
+  .feat-icon{font-size:28px;margin-bottom:8px}
+  .feat-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:4px}
+  .feat-sub{font-size:11px;color:#555;line-height:1.4}
+
+  .how{max-width:700px;margin:0 auto 48px;padding:0 24px}
+  .how h2{font-size:16px;font-weight:600;color:#fff;margin-bottom:16px;text-align:center}
+  .how-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .how-item{background:#1a1a2e;border:1px solid #222;border-radius:10px;padding:14px;text-align:center}
+  .how-num{font-size:20px;font-weight:700;color:#4ecdc4;margin-bottom:4px}
+  .how-text{font-size:11px;color:#666;line-height:1.4}
+
+  .loading{display:none;text-align:center;padding:20px;color:#4ecdc4;font-size:14px}
+  .spinner{
+    display:inline-block;width:20px;height:20px;
+    border:2px solid #333;border-top-color:#4ecdc4;
+    border-radius:50%;animation:spin .8s linear infinite;
+    vertical-align:middle;margin-right:8px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge"><div class="dot"></div>AIML Project — Banking & Finance</div>
+  <h1>Smart<span>Spend</span></h1>
+  <p class="sub">AI-powered personal finance tracker that detects anomalies, tracks daily sector spending, and forecasts your monthly budget — using only structured data.</p>
+  <div class="sdg-row">
+    <div class="sdg-pill sdg8">🎯 SDG 8 — Decent Work & Economic Growth</div>
+    <div class="sdg-pill sdg9">🏗 SDG 9 — Industry, Innovation & Infrastructure</div>
+  </div>
+
+  <div class="upload-card">
+    <div class="upload-icon">📊</div>
+    <div class="upload-title">Upload your Bank Statement</div>
+    <div class="upload-sub">
+      Upload any bank statement CSV with <strong>Date</strong> and <strong>Amount</strong> columns.<br>
+      Works with SBI, HDFC, ICICI, Axis, and Kaggle datasets.
+    </div>
+    <form method="POST" action="/analyse" enctype="multipart/form-data" onsubmit="showLoading()">
+      <input type="hidden" name="mode" value="upload"/>
+      <input type="file" name="file" accept=".csv" required/>
+      <button class="btn" type="submit" id="submitBtn">
+        🔍 Analyse My Spending
+      </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <form method="POST" action="/analyse" onsubmit="showLoading()">
+      <input type="hidden" name="mode" value="master"/>
+      <button class="btn btn-secondary" type="submit" id="sampleBtn">
+        🧪 Try Sample Dataset (249,696 Kaggle transactions)
+      </button>
+    </form>
+
+    <div class="loading" id="loading">
+      <span class="spinner"></span> Running ML models — Isolation Forest, Linear Regression, K-Means...
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="error">⚠️ {{ error }}</div>
+  {% endif %}
+</div>
+
+<div class="features">
+  <div class="feat">
+    <div class="feat-icon">🔴</div>
+    <div class="feat-title">Anomaly Detection</div>
+    <div class="feat-sub">Isolation Forest flags unusual transactions per sector</div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">📈</div>
+    <div class="feat-title">Budget Forecast</div>
+    <div class="feat-sub">Linear Regression predicts next month's spend</div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">🗂</div>
+    <div class="feat-title">Sector Tracker</div>
+    <div class="feat-sub">Rule-based tagging into Food, EMI, Transport & more</div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">🎯</div>
+    <div class="feat-title">Day Clustering</div>
+    <div class="feat-sub">K-Means groups days into Low / Medium / High spend</div>
+  </div>
+</div>
+
+<div class="how">
+  <h2>How it works</h2>
+  <div class="how-grid">
+    <div class="how-item"><div class="how-num">01</div><div class="how-text">Upload CSV with Date + Amount columns</div></div>
+    <div class="how-item"><div class="how-num">02</div><div class="how-text">Rules assign spending sectors from amounts & dates</div></div>
+    <div class="how-item"><div class="how-num">03</div><div class="how-text">Isolation Forest detects anomalies per sector</div></div>
+    <div class="how-item"><div class="how-num">04</div><div class="how-text">Linear Regression forecasts next month budget</div></div>
+    <div class="how-item"><div class="how-num">05</div><div class="how-text">K-Means clusters days by spending pattern</div></div>
+    <div class="how-item"><div class="how-num">06</div><div class="how-text">Dashboard shows all results with charts</div></div>
+  </div>
+</div>
+
+<script>
+function showLoading(){
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('sampleBtn').disabled = true;
+  document.getElementById('loading').style.display = 'block';
+}
+</script>
+</body>
+</html>

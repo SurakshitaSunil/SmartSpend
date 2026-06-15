@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# Uploads (user files — don't commit these)
+uploads/
+
+# Large dataset (249k rows — too big for GitHub)
+master_dataset.csv
+
+# Claude Code local config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
